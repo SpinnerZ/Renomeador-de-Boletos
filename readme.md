@@ -12,11 +12,11 @@ nome do cliente correspondente.
 > Atenção: Funciona apenas para os bancos **Itaú** e **Santander**!
 
 ## Funcionamento
-Procura por exatamente um arquivo .pdf localizado no mesmo diretório que o jar e o separa por página, salvando cada página
+Procura por exatamente um arquivo .pdf localizado no diretório especificado e o separa por página, salvando cada página
  individualmente e nomeando-a de acordo com o pagador identificado.
 
 ## Instruções
 > Requer o Java 8 ou superior instalado!
 
-Copie o **jar** para uma pasta que contenha apenas **um único arquivo pdf** e execute-o. Os boletos serão salvos nesse 
-mesmo diretório.  
+Copie o **jar** para uma pasta que contenha apenas **um único arquivo pdf** e execute-o passando o diretório atual **sem
+a barra final (/)** como argumento. Os boletos serão salvos nesse mesmo diretório especificado que contém o pdf.  

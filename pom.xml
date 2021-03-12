@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>leonardo.a.a.souza</groupId>
-    <artifactId>Renomeador de Boletos</artifactId>
+    <artifactId>Renomeador_de_Boletos</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 

@@ -8,11 +8,11 @@ import java.util.*;
 import java.io.File;
 
 public class BoletoHandler {
-    static Scanner scanner = new Scanner(System.in);
-    static final String DIRECTORY = getPath(System.getProperty("user.dir"));
-    static final PDDocument DOCUMENT = loadFile(DIRECTORY);
 
     public static void main(String[] args) throws IOException {
+        final String DIRECTORY = args[0] + "\\";
+        System.out.println("Directory: " + DIRECTORY);
+        final PDDocument DOCUMENT = loadFile(DIRECTORY);
         final BankInterface BANK = BankInterface.getBank(DOCUMENT);
 
         List<String> payers = new ArrayList<>();
@@ -93,11 +93,12 @@ public class BoletoHandler {
         return document;
     }
 
+    //Deprecated
     static String getPath(String inputFile) {
         String[] fullPath = inputFile.split("\\\\");
         StringBuilder path = new StringBuilder();
 
-        for (int i = 0; i < fullPath.length - 1; i++) {
+        for (int i = 0; i < fullPath.length; i++) {
             String partial = fullPath[i] + "\\";
             path.append(partial);
         }
