@@ -1,0 +1,1 @@
+java -jar "C:\Renomeador de Boletos.jar" "%cd%"

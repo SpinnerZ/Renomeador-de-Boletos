@@ -11,7 +11,6 @@ public class BoletoHandler {
 
     public static void main(String[] args) throws IOException {
         final String DIRECTORY = args[0] + "\\";
-        System.out.println("Directory: " + DIRECTORY);
         final PDDocument DOCUMENT = loadFile(DIRECTORY);
         final BankInterface BANK = BankInterface.getBank(DOCUMENT);
 

@@ -20,3 +20,5 @@ Procura por exatamente um arquivo .pdf localizado no diretório especificado e o
 
 Copie o **jar** para uma pasta que contenha apenas **um único arquivo pdf** e execute-o passando o diretório atual **sem
 a barra final (/)** como argumento. Os boletos serão salvos nesse mesmo diretório especificado que contém o pdf.  
+
+Há um [bat](src/main/resources/) e um [jar](out/artifacts/Renomeador_de_Boletos_jar) prontos por conveniência.
