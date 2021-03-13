@@ -4,14 +4,24 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import util.FiltroPDF;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.io.File;
 
 public class BoletoHandler {
 
     public static void main(String[] args) throws IOException {
-        final String DIRECTORY = args[0] + "\\";
-        final PDDocument DOCUMENT = loadFile(DIRECTORY);
+        if(args.length < 2)
+        {
+            System.out.println("Precisa inserir por argumentos a pasta de origem e a pasta de destino");
+            System.exit(0);
+        }
+
+        final String PDF_DIRECTORY = args[0] + "\\";
+        final String SAVE_DIRECTORY = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) +"\\";
+        final PDDocument DOCUMENT = loadFile(PDF_DIRECTORY);
         final BankInterface BANK = BankInterface.getBank(DOCUMENT);
 
         List<String> payers = new ArrayList<>();
@@ -28,12 +38,7 @@ public class BoletoHandler {
                             .filter(p -> p.equals(payer))
                             .count();
 
-            if (count > 1) {
-                saveBoleto(document, DIRECTORY, payer, count);
-            } else {
-                saveBoleto(document, DIRECTORY, payer);
-            }
-
+            saveBoleto(document, SAVE_DIRECTORY, payer, count);
             document.close();
         }
 
@@ -45,18 +50,29 @@ public class BoletoHandler {
         return splitter.split(document);
     }
 
-    public static void saveBoleto (PDDocument document, String path, String payer, int count) throws IOException {
-        document.save(path
-                + payer
-                + " "
-                + count
-                +".pdf");
-    }
+    public static void saveBoleto (PDDocument document, String saveDirectory, String payer, int count) throws IOException {
+        saveDirectory += payer + "\\";
 
-    public static void saveBoleto (PDDocument document, String path, String payer) throws IOException {
-        document.save(path
-                + payer
-                +".pdf");
+        //Adds the user name to the save path
+        try {
+            Path path = Paths.get(saveDirectory);
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            System.out.println("A pasta não pôde ser criada!\n" + e.getMessage());
+            System.exit(0);
+        }
+
+        if (count > 1) {
+            document.save(saveDirectory
+                    + payer
+                    + " "
+                    + count
+                    +".pdf");
+        } else {
+            document.save(saveDirectory
+                    + payer
+                    +".pdf");
+        }
     }
 
     //Retorna o nome do arquivo .pdf na pasta ou finaliza o programa
@@ -90,18 +106,5 @@ public class BoletoHandler {
         }
 
         return document;
-    }
-
-    //Deprecated
-    static String getPath(String inputFile) {
-        String[] fullPath = inputFile.split("\\\\");
-        StringBuilder path = new StringBuilder();
-
-        for (int i = 0; i < fullPath.length; i++) {
-            String partial = fullPath[i] + "\\";
-            path.append(partial);
-        }
-
-        return path.toString();
     }
 }
