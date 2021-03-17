@@ -13,14 +13,24 @@ import java.io.File;
 public class BoletoHandler {
 
     public static void main(String[] args) throws IOException {
-        if(args.length < 2)
+        if(args.length < 1)
         {
-            System.out.println("Precisa inserir por argumentos a pasta de origem e a pasta de destino");
+            System.out.println("Precisa inserir por argumentos ao menos a pasta de origem");
             System.exit(0);
         }
 
         final String PDF_DIRECTORY = args[0] + "\\";
-        final String SAVE_DIRECTORY = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) +"\\";
+
+        final String SAVE_DIRECTORY;
+        final boolean userFolder;
+        if (args.length > 1) {
+             SAVE_DIRECTORY = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) +"\\";
+             userFolder = true;
+        } else {
+            SAVE_DIRECTORY = PDF_DIRECTORY;
+            userFolder = false;
+        }
+
         final PDDocument DOCUMENT = loadFile(PDF_DIRECTORY);
         final BankInterface BANK = BankInterface.getBank(DOCUMENT);
 
@@ -38,7 +48,7 @@ public class BoletoHandler {
                             .filter(p -> p.equals(payer))
                             .count();
 
-            saveBoleto(document, SAVE_DIRECTORY, payer, count);
+            saveBoleto(document, SAVE_DIRECTORY, userFolder, payer, count);
             document.close();
         }
 
@@ -50,16 +60,18 @@ public class BoletoHandler {
         return splitter.split(document);
     }
 
-    public static void saveBoleto (PDDocument document, String saveDirectory, String payer, int count) throws IOException {
-        saveDirectory += payer + "\\";
+    public static void saveBoleto(PDDocument document, String saveDirectory, boolean userFolder, String payer, int count) throws IOException {
+        if (userFolder) {
+            saveDirectory += payer + "\\";
 
-        //Adds the user name to the save path
-        try {
-            Path path = Paths.get(saveDirectory);
-            Files.createDirectories(path);
-        } catch (IOException e) {
-            System.out.println("A pasta não pôde ser criada!\n" + e.getMessage());
-            System.exit(0);
+            //Adds the user name to the save path
+            try {
+                Path path = Paths.get(saveDirectory);
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                System.out.println("A pasta não pôde ser criada!\n" + e.getMessage());
+                System.exit(0);
+            }
         }
 
         if (count > 1) {

@@ -25,3 +25,7 @@ de destino **sem a barra final (/)** como argumentos. Os boletos serão salvos n
 subpastas auxiliares criadas.  
 
 Há um [bat](src/main/resources/) e um [jar](out/artifacts/Renomeador_de_Boletos_jar) prontos por conveniência.
+
+### Conveniência
+Se o argumento de destino não for passado, o programa funcionará e extrairá todos os .pdf na mesma pasta de origem, sem 
+separar por mês ou nome do cliente.
