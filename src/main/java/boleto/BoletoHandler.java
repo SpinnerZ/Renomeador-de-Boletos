@@ -13,31 +13,34 @@ import java.util.List;
 
 public class BoletoHandler {
 
-    private BoletoHandler(){}
+    private BoletoHandler() {}
 
-    public static void boletoHandler(String saveDirectory, boolean userFolder,
-                                     Iterator<PDDocument> startIterator) throws IOException {
+    public static void boletoHandler(
+            String saveDirectory, boolean userFolder, Iterator<PDDocument> iterator) throws IOException {
 
-        Iterator<PDDocument> iterator = startIterator;
-        final BankInterface BANK = BankInterface.getBank(startIterator.next());
-        List<String> payers = new ArrayList<>();
-        int count;
+        PDDocument document = iterator.next();
+        final BankInterface  BANK     = BankInterface.getBank(document);
+        List<String>         payers   = new ArrayList<>();
+        int                  count;
 
-        while(iterator.hasNext()) {
-            PDDocument document = iterator.next();
-            String payer = BANK.getPayer(document).replace("/", "");
+        while (true) {
+            String     payer    = BANK.getPayer(document).replace("/", "");
             payers.add(payer);
-            count = (int)
-                    payers.stream()
-                            .filter(p -> p.equals(payer))
-                            .count();
+            count = (int) payers.stream().filter(p -> p.equals(payer)).count();
 
             saveBoleto(document, saveDirectory, userFolder, payer, count);
             document.close();
+
+            if (iterator.hasNext()) {
+                document = iterator.next();
+            } else {
+                break;
+            }
         }
     }
 
-    static void saveBoleto(PDDocument document, String saveDirectory, boolean userFolder, String payer, int count) throws IOException {
+    static void saveBoleto(PDDocument document, String saveDirectory, boolean userFolder, String payer, int count)
+            throws IOException {
         if (userFolder) {
             saveDirectory += payer + "\\";
 
@@ -52,15 +55,9 @@ public class BoletoHandler {
         }
 
         if (count > 1) {
-            document.save(saveDirectory
-                    + payer
-                    + " "
-                    + count
-                    +".pdf");
+            document.save(saveDirectory + payer + " " + count + ".pdf");
         } else {
-            document.save(saveDirectory
-                    + payer
-                    +".pdf");
+            document.save(saveDirectory + payer + ".pdf");
         }
     }
 }
