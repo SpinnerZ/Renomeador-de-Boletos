@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: boleto.BoletoHandler
+Main-Class: MainApplication
 
