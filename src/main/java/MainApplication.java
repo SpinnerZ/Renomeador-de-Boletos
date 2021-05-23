@@ -5,6 +5,8 @@ import boleto.BoletoHandler;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import net.sourceforge.tess4j.TesseractException;
+import nfe.NfeHandler;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 public class MainApplication {
@@ -18,21 +20,35 @@ public class MainApplication {
   public static void main(String[] args) {
     setupPaths(args);
 
-    try {
-      doBoletoOperations();
-    } catch (IOException e) {
-      System.out.println("Ocorreu algum erro na operação com boletos: " + e.getMessage());
-      e.printStackTrace();
-    }
+//    try {
+//      doBoletoOperations();
+//    } catch (IOException e) {
+//      System.out.println("Ocorreu algum erro na operação com boletos: " + e.getMessage());
+//      e.printStackTrace();
+//    }
 
-//        try {
-//            doNFeOperations();
-//        }
+    if (containsNFe) {
+      try {
+        doNFeOperations();
+      } catch (Exception e) {
+        System.out.println("Ocorreu algum erro na operação com NFe: " + e.getMessage());
+        e.printStackTrace();
+      }
+    }
   }
 
-//    static void doNFeOperations() {
-//
-//    }
+  static void doNFeOperations() throws IOException, TesseractException {
+    List<PDDocument> nfePages = splitPDF(nfeDocument);
+
+    if (nfePages.isEmpty() || nfePages.size() <= 1) {
+      System.out.println("O arquivo .pdf não contém páginas com Notas Fiscais Eletrônicas");
+      System.exit(0);
+    }
+
+    nfePages.remove(0);
+
+    NfeHandler.extractTextPdf(saveDirectory, createUserFolder, nfePages);
+  }
 
   static void doBoletoOperations() throws IOException {
     List<PDDocument> documentPages = splitPDF(boletoDocument);
@@ -40,9 +56,9 @@ public class MainApplication {
     if (documentPages.isEmpty()) {
       System.out.println("O arquivo .pdf não contém páginas");
       System.exit(0);
-    } else {
-      BoletoHandler.boletoHandler(saveDirectory, createUserFolder, documentPages);
     }
+
+    BoletoHandler.boletoHandler(saveDirectory, createUserFolder, documentPages);
     boletoDocument.close();
   }
 
@@ -71,7 +87,8 @@ public class MainApplication {
         break;
 
       case 3:
-        saveDirectory = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) + "\\";
+        saveDirectory = args[1] + "\\";
+//        saveDirectory = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) + "\\";
         createUserFolder = true;
         containsNFe = true;
         String nfeOriginDirectory = args[2] + "\\";
