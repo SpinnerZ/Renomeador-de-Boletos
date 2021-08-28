@@ -20,12 +20,12 @@ public class MainApplication {
   public static void main(String[] args) {
     setupPaths(args);
 
-//    try {
-//      doBoletoOperations();
-//    } catch (IOException e) {
-//      System.out.println("Ocorreu algum erro na operação com boletos: " + e.getMessage());
-//      e.printStackTrace();
-//    }
+    /*try {
+      doBoletoOperations();
+    } catch (IOException e) {
+      System.out.println("Ocorreu algum erro na operação com boletos: " + e.getMessage());
+      e.printStackTrace();
+    }*/
 
     if (containsNFe) {
       try {
@@ -47,7 +47,7 @@ public class MainApplication {
 
     nfePages.remove(0);
 
-    NfeHandler.extractTextPdf(saveDirectory, createUserFolder, nfePages);
+    NfeHandler.extractTextFromPdf(saveDirectory, createUserFolder, nfePages);
   }
 
   static void doBoletoOperations() throws IOException {

@@ -16,16 +16,15 @@ import util.PDFHandler;
 
 public class NfeHandler {
 
-  private static final int CLIENT_LINE = 18;
-  private static final int CLIENT_LINE_SECOND = 12;
   private static final String CLIENT_PREFIX = ": ";
 
   private NfeHandler() {
   }
 
-  public static void extractTextPdf(String saveDirectory, boolean userFolder,
+  public static void extractTextFromPdf(String saveDirectory, boolean userFolder,
       List<PDDocument> pages) throws IOException, TesseractException {
     List<String> clients = new ArrayList<>();
+    int pagesCount = 0;
     int count;
 
     for (PDDocument page : pages) {
@@ -36,19 +35,41 @@ public class NfeHandler {
       PDFHandler.savePdf(page, saveDirectory, userFolder, payer, count, "NFe - ");
 
       page.close();
+
+      pagesCount++;
     }
+
+    System.out.println("Clientes encontrados: " + pagesCount);
   }
 
   private static String getClientName(PDDocument page) throws TesseractException, IOException {
-    try {
-      return splitAndReplace(PDFHandler.getPdfLines(extractTextFromScannedDocument(page))[CLIENT_LINE]);
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return splitAndReplace(PDFHandler.getPdfLines(extractTextFromScannedDocument(page))[CLIENT_LINE_SECOND]);
-    }
+    return splitAndReplace(
+        PDFHandler.getPdfLines(extractTextFromScannedDocument(page)));
   }
 
-  private static String splitAndReplace(String line) {
-    return line.split(CLIENT_PREFIX)[1].replaceAll("[|/?]", "").trim();
+  private static String splitAndReplace(String[] lines) {
+    int linesLength = lines.length;
+    int tomadorLine = 11;
+
+    for (int i = 0; i < linesLength; i++) {
+      if (lines[i].contains("TOMADOR DE SERVIÇOS")) {
+        tomadorLine = i;
+        break;
+      }
+    }
+
+    for (int i = tomadorLine; i < linesLength; i++) {
+      if (lines[i].contains("Razão Social:") || lines[i].contains("Razão Socia:")) {
+        return lines[i].split(CLIENT_PREFIX)[1].replaceAll("[|/?]", "").trim();
+      }
+    }
+
+    System.out.println("Página inteira do cliente não encontrado:");
+    for (int i = 0; i < lines.length; i++) {
+      System.out.println(i + ": " + lines[i]);
+    }
+
+    return "Cliente não encontrado";
   }
 
   private static String extractTextFromScannedDocument(PDDocument document)
@@ -58,10 +79,10 @@ public class NfeHandler {
     PDFRenderer pdfRenderer = new PDFRenderer(document);
     StringBuilder out = new StringBuilder();
 
-    ITesseract _tesseract = new Tesseract();
-    _tesseract.setDatapath("tessdata");
-    _tesseract.setLanguage("por");
-    _tesseract.setTessVariable("user_defined_dpi", "70");
+    ITesseract tesseract = new Tesseract();
+    tesseract.setDatapath("tessdata");
+    tesseract.setLanguage("por");
+    tesseract.setTessVariable("user_defined_dpi", "70");
 
     BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
 
@@ -69,7 +90,7 @@ public class NfeHandler {
     File tempFile = File.createTempFile("tempfile_", ".png");
     ImageIO.write(bufferedImage, "png", tempFile);
 
-    String result = _tesseract.doOCR(tempFile);
+    String result = tesseract.doOCR(tempFile);
     out.append(result);
 
     // Delete temp file
