@@ -1,21 +1,23 @@
-import static util.PDFHandler.loadFile;
-import static util.PDFHandler.splitPDF;
+import static util.PDFHelper.splitPDF;
 
 import boleto.BoletoHandler;
 import java.io.IOException;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
 import net.sourceforge.tess4j.TesseractException;
 import nfe.NfeHandler;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import util.PathHelper;
 
 public class MainApplication {
 
   static PDDocument boletoDocument;
   static PDDocument nfeDocument;
+  static String originDirectory;
   static String saveDirectory;
-  static boolean createUserFolder;
-  static boolean containsNFe;
+
+  private static List<String> bankClients = new ArrayList<>();
+  private static List<String> nfeClients = new ArrayList<>();
 
   public static void main(String[] args) {
     setupPaths(args);
@@ -47,7 +49,7 @@ public class MainApplication {
 
     nfePages.remove(0);
 
-    NfeHandler.extractTextFromPdf(saveDirectory, createUserFolder, nfePages);
+    NfeHandler.extractTextFromPdf(saveDirectory, createUserFolder, nfePages, nfeClients);
   }
 
   static void doBoletoOperations() throws IOException {
@@ -58,48 +60,37 @@ public class MainApplication {
       System.exit(0);
     }
 
-    BoletoHandler.boletoHandler(saveDirectory, createUserFolder, documentPages);
+    BoletoHandler.boletoHandler(saveDirectory, documentPages, bankClients);
     boletoDocument.close();
   }
 
   static void setupPaths(String[] args) {
 
-    if (args.length < 1) {
-      System.out.println(
-          "Precisa inserir por argumentos ao menos a pasta de origem do arquivo que contém todos os boletos");
-      System.exit(0);
-    }
-
-    String boletoOriginDirectory = args[0] + "\\";
-    boletoDocument = loadFile(boletoOriginDirectory);
-
     switch (args.length) {
+      case 0:
+        originDirectory = "";
+        saveDirectory = originDirectory + "\\resultado\\";
+        PathHelper.createSaveFolder(saveDirectory);
+        break;
+
       case 1:
-        saveDirectory = boletoOriginDirectory;
-        createUserFolder = false;
-        containsNFe = false;
+        originDirectory = args[0] + "\\";
+        saveDirectory = originDirectory + "resultado\\";
+        PathHelper.createSaveFolder(saveDirectory);
         break;
 
       case 2:
-        saveDirectory = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) + "\\";
-        createUserFolder = true;
-        containsNFe = false;
-        break;
-
-      case 3:
+        originDirectory = args[0] + "\\";
         saveDirectory = args[1] + "\\";
-//        saveDirectory = args[1] + "\\" + (Calendar.getInstance().get(Calendar.MONTH) + 1) + "\\";
-        createUserFolder = true;
-        containsNFe = true;
-        String nfeOriginDirectory = args[2] + "\\";
-        nfeDocument = loadFile(nfeOriginDirectory);
         break;
 
       default:
-        System.out.println("O programa aceita 1, 2 ou 3 argumentos, sendo eles em ordem:\n" +
-            "Pasta de origem do arquivo que contém todos os boletos\n" +
-            "Pasta de destino se quiser salvar automaticamente o mês e uma pasta por cliente\n" +
-            "Pasta de origem do arquivo que contém o talão de NFe");
+        System.out.println("O programa aceita 0, 1 ou 2 argumentos, sendo eles:\n" +
+            "0 -> Pasta de origem do arquivo é o mesmo em que o programa se encontra. A pasta de destinho será criada dentro da pasta atual.\n"
+            +
+            "1 -> Pasta de origem especificada. A pasta de destino será criada dentro da pasta de origem.\n"
+            +
+            "2 -> Pastas de origem e destino especificadas. Nenhuma outra pasta será criada.");
     }
   }
 }

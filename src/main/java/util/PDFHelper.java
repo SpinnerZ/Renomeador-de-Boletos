@@ -2,17 +2,14 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
-public class PDFHandler {
+public class PDFHelper {
 
-  private PDFHandler() {
+  private PDFHelper() {
   }
 
   //Returns the .pdf filename in the folder or finishes the program
@@ -53,24 +50,13 @@ public class PDFHandler {
     return splitter.split(document);
   }
 
-  public static void savePdf(PDDocument document, String saveDirectory, boolean userFolder,
-      String payer, int count, String pdfType) throws IOException {
-//    if (userFolder) {
-//      saveDirectory += payer + "\\";
-//
-//      //Adds the user name to the save path
-//      try {
-//        Files.createDirectories(Paths.get(saveDirectory));
-//      } catch (IOException e) {
-//        System.out.println("A pasta não pôde ser criada!\n" + e.getMessage());
-//        System.exit(0);
-//      }
-//    }
+  public static void savePdf(PDDocument document, String saveDirectory, String payer, int count,
+      String pdfType) throws IOException {
 
     if (count > 1) {
-      document.save(saveDirectory + pdfType + payer + " " + count + ".pdf");
+      document.save(saveDirectory + payer + " " + count + pdfType + ".pdf");
     } else {
-      document.save(saveDirectory + pdfType + payer + ".pdf");
+      document.save(saveDirectory + payer + pdfType + ".pdf");
     }
   }
 
@@ -80,7 +66,7 @@ public class PDFHandler {
     return pdfStripper.getText(document).split("\\r?\\n");
   }
 
-  public static String[] getPdfLines(String lines) throws IOException {
+  public static String[] getPdfLines(String lines) {
     return lines.split("\\r?\\n");
   }
 }

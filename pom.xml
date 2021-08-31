@@ -5,8 +5,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>leonardo.a.a.souza</groupId>
-  <artifactId>Renomeador_de_Boletos</artifactId>
-  <version>1.5.22</version>
+  <artifactId>Separador_e_Renomeador_de_PDFs_Contabilidade</artifactId>
+  <version>1.8.31</version>
   <packaging>jar</packaging>
 
   <properties>

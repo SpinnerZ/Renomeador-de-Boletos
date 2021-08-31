@@ -3,7 +3,6 @@ package nfe;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import net.sourceforge.tess4j.ITesseract;
@@ -12,7 +11,7 @@ import net.sourceforge.tess4j.TesseractException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import util.PDFHandler;
+import util.PDFHelper;
 
 public class NfeHandler {
 
@@ -21,9 +20,8 @@ public class NfeHandler {
   private NfeHandler() {
   }
 
-  public static void extractTextFromPdf(String saveDirectory, boolean userFolder,
-      List<PDDocument> pages) throws IOException, TesseractException {
-    List<String> clients = new ArrayList<>();
+  public static void extractTextFromPdf(String saveDirectory, List<PDDocument> pages,
+      List<String> clients) throws IOException, TesseractException {
     int pagesCount = 0;
     int count;
 
@@ -32,7 +30,7 @@ public class NfeHandler {
       clients.add(payer);
       count = (int) clients.stream().filter(p -> p.equals(payer)).count();
 
-      PDFHandler.savePdf(page, saveDirectory, userFolder, payer, count, "NFe - ");
+      PDFHelper.savePdf(page, saveDirectory, payer, count, "NFe - ");
 
       page.close();
 
@@ -44,7 +42,7 @@ public class NfeHandler {
 
   private static String getClientName(PDDocument page) throws TesseractException, IOException {
     return splitAndReplace(
-        PDFHandler.getPdfLines(extractTextFromScannedDocument(page)));
+        PDFHelper.getPdfLines(extractTextFromScannedDocument(page)));
   }
 
   private static String splitAndReplace(String[] lines) {
@@ -62,11 +60,6 @@ public class NfeHandler {
       if (lines[i].contains("Razão Social:") || lines[i].contains("Razão Socia:")) {
         return lines[i].split(CLIENT_PREFIX)[1].replaceAll("[|/?]", "").trim();
       }
-    }
-
-    System.out.println("Página inteira do cliente não encontrado:");
-    for (int i = 0; i < lines.length; i++) {
-      System.out.println(i + ": " + lines[i]);
     }
 
     return "Cliente não encontrado";

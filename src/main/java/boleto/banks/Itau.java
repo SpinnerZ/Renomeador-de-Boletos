@@ -2,7 +2,7 @@ package boleto.banks;
 
 import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import util.PDFHandler;
+import util.PDFHelper;
 
 public class Itau implements BankInterface {
 
@@ -11,6 +11,6 @@ public class Itau implements BankInterface {
   @Override
   public String getPayer(PDDocument document) throws IOException {
 
-    return PDFHandler.getPdfLines(document)[PAYER_LINE].split(" -")[0].trim();
+    return PDFHelper.getPdfLines(document)[PAYER_LINE].split(" -")[0].trim();
   }
 }

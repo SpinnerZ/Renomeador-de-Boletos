@@ -5,7 +5,7 @@ import java.io.FilenameFilter;
 
 public class PDFFilter implements FilenameFilter {
 
-    public boolean accept(File dir, String name) {
-        return name.endsWith(".pdf");
-    }
+  public boolean accept(File dir, String name) {
+    return name.endsWith(".pdf");
+  }
 }
