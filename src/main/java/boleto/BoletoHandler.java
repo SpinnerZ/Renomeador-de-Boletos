@@ -11,7 +11,7 @@ public class BoletoHandler {
   private BoletoHandler() {
   }
 
-  public static void boletoHandler(String saveDirectory, List<PDDocument> pages,
+  public static void handleBoleto(String saveDirectory, List<PDDocument> pages,
       List<String> payers) throws IOException {
     final BankInterface bank = BankInterface.getBank(pages.get(0));
     int count;

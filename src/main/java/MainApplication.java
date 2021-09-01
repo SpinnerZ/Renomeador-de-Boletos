@@ -11,56 +11,42 @@ import util.PathHelper;
 
 public class MainApplication {
 
-  static PDDocument boletoDocument;
-  static PDDocument nfeDocument;
-  static String originDirectory;
-  static String saveDirectory;
+  private static String originDirectory;
+  private static String saveDirectory;
 
-  private static List<String> bankClients = new ArrayList<>();
-  private static List<String> nfeClients = new ArrayList<>();
+  private static final List<String> bankClients = new ArrayList<>();
+  private static final List<String> nfeClients = new ArrayList<>();
+  private static List<PDDocument> pdfPages;
 
   public static void main(String[] args) {
+    List<PDDocument> pdfFiles;
+
     setupPaths(args);
 
-    /*try {
-      doBoletoOperations();
+    try {
+      pdfPages = splitPDF();
     } catch (IOException e) {
-      System.out.println("Ocorreu algum erro na operação com boletos: " + e.getMessage());
-      e.printStackTrace();
-    }*/
-
-    if (containsNFe) {
-      try {
-        doNFeOperations();
-      } catch (Exception e) {
-        System.out.println("Ocorreu algum erro na operação com NFe: " + e.getMessage());
-        e.printStackTrace();
-      }
+      System.out.println("Não foi possível separar o pdf em páginas: " + e.getMessage());
+      System.exit(-1);
     }
+
+    if (pdfPages.isEmpty() || pdfPages.size() <= 1) {
+      System.out.println("O arquivo .pdf contém uma ou menos páginas");
+      System.exit(-1);
+    }
+
   }
 
   static void doNFeOperations() throws IOException, TesseractException {
-    List<PDDocument> nfePages = splitPDF(nfeDocument);
 
-    if (nfePages.isEmpty() || nfePages.size() <= 1) {
-      System.out.println("O arquivo .pdf não contém páginas com Notas Fiscais Eletrônicas");
-      System.exit(0);
-    }
+    pdfPages.remove(0);
 
-    nfePages.remove(0);
-
-    NfeHandler.extractTextFromPdf(saveDirectory, createUserFolder, nfePages, nfeClients);
+    NfeHandler.extractTextFromPdf(saveDirectory, createUserFolder, pdfPages, nfeClients);
   }
 
   static void doBoletoOperations() throws IOException {
-    List<PDDocument> documentPages = splitPDF(boletoDocument);
 
-    if (documentPages.isEmpty()) {
-      System.out.println("O arquivo .pdf não contém páginas");
-      System.exit(0);
-    }
-
-    BoletoHandler.boletoHandler(saveDirectory, documentPages, bankClients);
+    BoletoHandler.handleBoleto(saveDirectory, pdfPages, bankClients);
     boletoDocument.close();
   }
 
