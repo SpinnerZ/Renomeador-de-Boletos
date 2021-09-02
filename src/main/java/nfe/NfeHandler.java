@@ -22,7 +22,6 @@ public class NfeHandler {
 
   public static void extractTextFromPdf(String saveDirectory, List<PDDocument> pages,
       List<String> clients) throws IOException, TesseractException {
-    int pagesCount = 0;
     int count;
 
     for (PDDocument page : pages) {
@@ -30,14 +29,10 @@ public class NfeHandler {
       clients.add(payer);
       count = (int) clients.stream().filter(p -> p.equals(payer)).count();
 
-      PDFHelper.savePdf(page, saveDirectory, payer, count, "NFe - ");
+      PDFHelper.savePdf(page, saveDirectory, payer, count, "- NFe");
 
       page.close();
-
-      pagesCount++;
     }
-
-    System.out.println("Clientes encontrados: " + pagesCount);
   }
 
   private static String getClientName(PDDocument page) throws TesseractException, IOException {

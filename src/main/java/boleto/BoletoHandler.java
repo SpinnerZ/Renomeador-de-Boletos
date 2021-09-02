@@ -21,7 +21,7 @@ public class BoletoHandler {
       payers.add(payer);
       count = (int) payers.stream().filter(p -> p.equals(payer)).count();
 
-      PDFHelper.savePdf(page, saveDirectory, payer, count, "Boleto - ");
+      PDFHelper.savePdf(page, saveDirectory, payer, count, "- Boleto");
 
       page.close();
     }

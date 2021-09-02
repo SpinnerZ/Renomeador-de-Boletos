@@ -1,6 +1,5 @@
 package util;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.pdfbox.multipdf.Splitter;
@@ -21,9 +20,9 @@ public class PDFHelper {
       String pdfType) throws IOException {
 
     if (count > 1) {
-      document.save(saveDirectory + payer + " " + count + pdfType + ".pdf");
+      document.save(saveDirectory + payer + " " + count + " " + pdfType + ".pdf");
     } else {
-      document.save(saveDirectory + payer + pdfType + ".pdf");
+      document.save(saveDirectory + payer + " " + pdfType + ".pdf");
     }
   }
 
@@ -37,7 +36,7 @@ public class PDFHelper {
     return lines.split("\\r?\\n");
   }
 
-  public static boolean isBoleto(PDDocument pdf) {
-
+  public static boolean isNFe(PDDocument pdfPage) throws IOException {
+    return getPdfLines(pdfPage)[0].contains("PREFEITURA DO RECIFE");
   }
 }

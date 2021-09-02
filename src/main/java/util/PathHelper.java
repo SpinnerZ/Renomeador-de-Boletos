@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -12,6 +14,8 @@ public class PathHelper {
 
   private PathHelper() {
   }
+
+  private static final String WINDOWS_FRIENDLY_DATE_FORMAT = "dd-MM-yyyy_HH-mm-ss";
 
   public static void createSaveFolder(String savePath) {
     try {
@@ -68,12 +72,11 @@ public class PathHelper {
     }
 
     // File (or directory) with new name
-    File newFile = new File("");
+    File newFile = new File(file.getParent() + windowsFriendlyFormatDateOfNow() + ".txt");
+    file.renameTo(newFile);
+  }
 
-    boolean success = file.renameTo(newFile);
-
-    if (!success) {
-      // File was not successfully renamed
-    }
+  public static String windowsFriendlyFormatDateOfNow() {
+    return new SimpleDateFormat(WINDOWS_FRIENDLY_DATE_FORMAT).format(new Date());
   }
 }
