@@ -1,6 +1,7 @@
 package util;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,7 +16,7 @@ public class PathHelper {
   private PathHelper() {
   }
 
-  private static final String WINDOWS_FRIENDLY_DATE_FORMAT = "dd-MM-yyyy_HH-mm-ss";
+  private static final String WINDOWS_FRIENDLY_DATE_FORMAT = "dd-MM-yyyy HH-mm-ss";
 
   public static void createSaveFolder(String savePath) {
     try {
@@ -42,37 +43,46 @@ public class PathHelper {
     return flist;
   }
 
-  public static List<PDDocument> loadFiles(String directory) {
+  public static List<PDDocument> loadFiles(String directory, FileWriter writer) {
 
     List<PDDocument> documents = new ArrayList<>();
 
     for (String filePath : findPdfFiles(directory)) {
       try {
         documents.add(PDDocument.load(new File(directory + filePath)));
+        writer.write("\nDocumento carregado: " + filePath);
       } catch (IOException e) {
         System.out.println("Não é um arquivo PDF ou está corrompido: " + filePath);
       }
     }
 
     if (documents.isEmpty()) {
-      System.out.println("Não foram encontrados arquivos válidos no diretório de origem.");
+      try {
+        writer.write(
+            "\nNão foram encontrados arquivos válidos no diretório de origem: " + directory);
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
+      }
       System.exit(-1);
     }
 
     return documents;
   }
 
-  public static void eraseAndFinish(String directory, File file) {
+  public static void eraseAndFinish(String directory, File file, FileWriter writer) {
     for (String filePath : findPdfFiles(directory)) {
       try {
+        writer.write("\nTentando apagar o arquivo " + filePath);
         Files.delete(Paths.get(filePath));
+        writer.write("\n" + filePath + " apagado");
       } catch (IOException e) {
         System.out.println("Não foi possível excluir o arquivo: " + filePath);
       }
     }
 
     // File (or directory) with new name
-    File newFile = new File(file.getParent() + windowsFriendlyFormatDateOfNow() + ".txt");
+    File newFile = new File(
+        file.getParent() + "\\CONCLUÍDO " + windowsFriendlyFormatDateOfNow() + ".txt");
     file.renameTo(newFile);
   }
 

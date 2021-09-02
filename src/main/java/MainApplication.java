@@ -18,35 +18,31 @@ public class MainApplication {
   private static String saveDirectory;
   private static File file;
   private static FileWriter writer;
+  private static List<PDDocument> pdfPages;
 
   private static final List<String> bankClients = new ArrayList<>();
   private static final List<String> nfeClients = new ArrayList<>();
-  private static List<PDDocument> pdfPages;
 
   public static void main(String[] args) {
 
     setupPaths(args);
 
-    for (PDDocument pdfFile : PathHelper.loadFiles(originDirectory)) {
+    for (PDDocument pdfFile : PathHelper.loadFiles(originDirectory, writer)) {
       try {
         writer.write("\n\nSeparando páginas");
         pdfPages = splitPDF(pdfFile);
-        writer.write("Arquivo com " + pdfPages.size() + " páginas");
+        writer.write("\nArquivo com " + pdfPages.size() + " páginas");
 
         if (!isValidAmountOfPages(pdfPages)) {
-          writer.write("Não tem quantidade válida de paginas");
           closePdf(pdfFile);
           continue;
         }
 
         if (PDFHelper.isNFe(pdfPages.get(0))) {
-          writer.write("É uma NFe");
           doNFeOperations();
         } else {
-          writer.write("É um Boleto");
-          BoletoHandler.handleBoleto(saveDirectory, pdfPages, bankClients);
+          doBoletoOperations();
         }
-
       } catch (IOException | TesseractException e) {
         System.out.println(
             "Não foi possível processar o arquivo pdf: " + pdfFile + "\n" + e.getMessage());
@@ -57,18 +53,22 @@ public class MainApplication {
       closePdf(pdfFile);
     }
 
+    cleanupPhase();
+  }
+
+  private static void cleanupPhase() {
     try {
-      writer.write("Fim do processamento, excluindo arquivos pdf na pasta de origem.");
+      writer.write("\n\nFim do processamento, excluindo arquivos pdf na pasta de origem.");
       writer.close();
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
-    PathHelper.eraseAndFinish(originDirectory, file);
+    PathHelper.eraseAndFinish(originDirectory, file, writer);
   }
 
-  private static boolean isValidAmountOfPages(List<PDDocument> pdfPages) {
+  private static boolean isValidAmountOfPages(List<PDDocument> pdfPages) throws IOException {
     if (pdfPages.isEmpty() || pdfPages.size() <= 1) {
-      System.out.println("O arquivo .pdf contém uma ou menos páginas");
+      writer.write("\nO arquivo .pdf contém uma ou menos páginas");
       return false;
     }
 
@@ -83,8 +83,13 @@ public class MainApplication {
     }
   }
 
-  static void doNFeOperations() throws IOException, TesseractException {
+  static void doBoletoOperations() throws IOException {
+    writer.write("\nÉ um Boleto");
+    BoletoHandler.handleBoleto(saveDirectory, pdfPages, bankClients);
+  }
 
+  static void doNFeOperations() throws IOException, TesseractException {
+    writer.write("\nÉ uma NFe");
     pdfPages.remove(0);
     NfeHandler.extractTextFromPdf(saveDirectory, pdfPages, nfeClients);
   }
@@ -100,7 +105,7 @@ public class MainApplication {
 
       case 1:
         originDirectory = args[0] + "\\";
-        saveDirectory = originDirectory + "resultado\\";
+        saveDirectory = originDirectory + "Processados\\";
         PathHelper.createSaveFolder(saveDirectory);
         break;
 
@@ -125,7 +130,7 @@ public class MainApplication {
       writer = new FileWriter(file.getCanonicalPath());
 
       writer.write("Diretório de origem: " + originDirectory);
-      writer.write("Diretório de destino: " + saveDirectory);
+      writer.write("\nDiretório de destino: " + saveDirectory + "\n");
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
