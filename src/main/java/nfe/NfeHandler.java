@@ -3,6 +3,8 @@ package nfe;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.imageio.ImageIO;
 import net.sourceforge.tess4j.ITesseract;
@@ -44,15 +46,17 @@ public class NfeHandler {
     int linesLength = lines.length;
     int tomadorLine = 11;
 
+    PDFHelper.printLines(lines);
+
     for (int i = 0; i < linesLength; i++) {
-      if (lines[i].contains("TOMADOR DE SERVIÇOS")) {
+      if (lines[i].contains("TOMADOR DE ")) {
         tomadorLine = i;
         break;
       }
     }
 
     for (int i = tomadorLine; i < linesLength; i++) {
-      if (lines[i].contains("Razão Social:") || lines[i].contains("Razão Socia:")) {
+      if (lines[i].contains("o Socia")) {
         return lines[i].split(CLIENT_PREFIX)[1].replaceAll("[|/?]", "").trim();
       }
     }
@@ -68,7 +72,8 @@ public class NfeHandler {
     StringBuilder out = new StringBuilder();
 
     ITesseract tesseract = new Tesseract();
-    tesseract.setDatapath("tessdata");
+    tesseract.setDatapath(
+        "C:/Users/leonardo.a.a.souza/GitHub/Renomeador-de-Boletos/out/artifacts/");
     tesseract.setLanguage("por");
     tesseract.setTessVariable("user_defined_dpi", "70");
 
@@ -82,7 +87,7 @@ public class NfeHandler {
     out.append(result);
 
     // Delete temp file
-    tempFile.delete();
+    Files.delete(Paths.get(tempFile.getCanonicalPath()));
 
     return out.toString();
   }

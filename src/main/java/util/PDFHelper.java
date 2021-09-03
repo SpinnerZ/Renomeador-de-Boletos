@@ -39,4 +39,10 @@ public class PDFHelper {
   public static boolean isNFe(PDDocument pdfPage) throws IOException {
     return getPdfLines(pdfPage)[0].contains("PREFEITURA DO RECIFE");
   }
+
+  public static void printLines(String[] lines) {
+    for (int i = 0; i < lines.length; i++) {
+      System.out.println(i + ": " + lines[i]);
+    }
+  }
 }
