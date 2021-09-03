@@ -63,7 +63,6 @@ public class PathHelper {
       } catch (IOException e) {
         System.out.println(e.getMessage());
       }
-      System.exit(-1);
     }
 
     return documents;

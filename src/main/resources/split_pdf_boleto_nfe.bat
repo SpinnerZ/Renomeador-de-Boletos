@@ -1,1 +1,1 @@
-java -jar "C:\Renomeador de Boletos.jar" "%cd%" "C:\Boletos\ANO"
+java -jar .\Separador_de_Boletos_e_NFe.jar

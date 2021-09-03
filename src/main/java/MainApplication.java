@@ -27,43 +27,46 @@ public class MainApplication {
 
     setupPaths(args);
 
-    for (PDDocument pdfFile : PathHelper.loadFiles(originDirectory, writer)) {
+    List<PDDocument> loadedFiles = PathHelper.loadFiles(originDirectory, writer);
+
+    processFiles(loadedFiles);
+
+    cleanupPhase();
+  }
+
+  private static void processFiles(List<PDDocument> loadedFiles) {
+    for (PDDocument pdfFile : loadedFiles) {
       try {
         writer.write("\n\nSeparando páginas");
         pdfPages = splitPDF(pdfFile);
         writer.write("\nArquivo com " + pdfPages.size() + " páginas");
 
-        if (!isValidAmountOfPages(pdfPages)) {
-          closePdf(pdfFile);
-          continue;
+        if (isValidAmountOfPages(pdfPages)) {
+          if (PDFHelper.isNFe(pdfPages.get(0))) {
+            doNFeOperations();
+          } else {
+            doBoletoOperations();
+          }
         }
 
-        if (PDFHelper.isNFe(pdfPages.get(0))) {
-          doNFeOperations();
-        } else {
-          doBoletoOperations();
-        }
+        closePdf(pdfFile);
       } catch (IOException | TesseractException e) {
         System.out.println(
             "Não foi possível processar o arquivo pdf: " + pdfFile + "\n" + e.getMessage());
-        closePdf(pdfFile);
-        continue;
       }
-
-      closePdf(pdfFile);
     }
-
-    cleanupPhase();
   }
 
   private static void cleanupPhase() {
     try {
       writer.write("\n\nFim do processamento, excluindo arquivos pdf na pasta de origem.");
+
+      PathHelper.eraseAndFinish(originDirectory, file, writer);
+
       writer.close();
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
-    PathHelper.eraseAndFinish(originDirectory, file, writer);
   }
 
   private static boolean isValidAmountOfPages(List<PDDocument> pdfPages) throws IOException {
