@@ -27,7 +27,7 @@ se apenas a origem foi fornecida, e nomeia-as segundo o cliente identificado.
 Copie o **jar** para uma pasta que contenha os arquivos pdf e execute-o ou passe o diretório de
 origem e o de destino **sem a barra final (/)** como argumentos. O programa aceita ainda apenas o
 diretório de origem. Os boletos serão salvos no diretório de destino especificado, ou criará uma
-pasta chamada "Processados" dentro do diretório de origem.
+pasta chamada "Processados" no diretório de origem.
 
-Há um [bat](src/main/resources/split_pdf_boleto_nfe.bat) e um [jar](out/artifacts/) prontos por
-conveniência.
+Há um [bat](src/main/resources/split_pdf_boleto_nfe.bat) e
+um [jar](out/artifacts/Separador_de_Boletos_e_NFe.jar) prontos por conveniência.

@@ -1,9 +1,13 @@
 import static util.PDFHelper.splitPDF;
+import static util.PathHelper.windowsFriendlyFormatDateOfNow;
 
 import boleto.BoletoHandler;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import net.sourceforge.tess4j.TesseractException;
@@ -27,43 +31,51 @@ public class MainApplication {
 
     setupPaths(args);
 
-    for (PDDocument pdfFile : PathHelper.loadFiles(originDirectory, writer)) {
+    List<PDDocument> loadedFiles = PathHelper.loadFiles(originDirectory, writer);
+
+    processFiles(loadedFiles);
+
+    cleanupPhase();
+  }
+
+  private static void processFiles(List<PDDocument> loadedFiles) {
+    for (PDDocument pdfFile : loadedFiles) {
       try {
         writer.write("\n\nSeparando páginas");
         pdfPages = splitPDF(pdfFile);
         writer.write("\nArquivo com " + pdfPages.size() + " páginas");
 
-        if (!isValidAmountOfPages(pdfPages)) {
-          closePdf(pdfFile);
-          continue;
+        if (isValidAmountOfPages(pdfPages)) {
+          if (PDFHelper.isNFe(pdfPages.get(0))) {
+            doNFeOperations();
+          } else {
+            doBoletoOperations();
+          }
         }
 
-        if (PDFHelper.isNFe(pdfPages.get(0))) {
-          doNFeOperations();
-        } else {
-          doBoletoOperations();
-        }
+        closePdf(pdfFile);
       } catch (IOException | TesseractException e) {
         System.out.println(
             "Não foi possível processar o arquivo pdf: " + pdfFile + "\n" + e.getMessage());
-        closePdf(pdfFile);
-        continue;
       }
-
-      closePdf(pdfFile);
     }
-
-    cleanupPhase();
   }
 
   private static void cleanupPhase() {
     try {
       writer.write("\n\nFim do processamento, excluindo arquivos pdf na pasta de origem.");
+
+      PathHelper.eraseAndFinish(originDirectory, writer);
+
       writer.close();
+
+      Path filePath = Paths.get(file.getCanonicalPath());
+      Files.move(filePath,
+          filePath.resolveSibling("CONCLUÍDO " + windowsFriendlyFormatDateOfNow() + ".txt"));
+
     } catch (IOException e) {
       System.out.println(e.getMessage());
     }
-    PathHelper.eraseAndFinish(originDirectory, file, writer);
   }
 
   private static boolean isValidAmountOfPages(List<PDDocument> pdfPages) throws IOException {
@@ -98,8 +110,8 @@ public class MainApplication {
 
     switch (args.length) {
       case 0:
-        originDirectory = "";
-        saveDirectory = originDirectory + "\\resultado\\";
+        originDirectory = System.getProperty("user.dir") + "\\";
+        saveDirectory = originDirectory + "Processados\\";
         PathHelper.createSaveFolder(saveDirectory);
         break;
 
@@ -124,7 +136,7 @@ public class MainApplication {
     }
 
     file = new File(
-        originDirectory + "processando " + PathHelper.windowsFriendlyFormatDateOfNow() + ".txt");
+        originDirectory + "PROCESSANDO " + windowsFriendlyFormatDateOfNow() + ".txt");
     try {
       file.createNewFile();
       writer = new FileWriter(file.getCanonicalPath());

@@ -53,6 +53,7 @@ public class PathHelper {
         writer.write("\nDocumento carregado: " + filePath);
       } catch (IOException e) {
         System.out.println("Não é um arquivo PDF ou está corrompido: " + filePath);
+        System.out.println(e.getMessage());
       }
     }
 
@@ -63,14 +64,13 @@ public class PathHelper {
       } catch (IOException e) {
         System.out.println(e.getMessage());
       }
-      System.exit(-1);
     }
 
     return documents;
   }
 
-  public static void eraseAndFinish(String directory, File file, FileWriter writer) {
-    for (String filePath : findPdfFiles(directory)) {
+  public static void eraseAndFinish(String originDirectory, FileWriter writer) {
+    for (String filePath : findPdfFiles(originDirectory)) {
       try {
         writer.write("\nTentando apagar o arquivo " + filePath);
         Files.delete(Paths.get(filePath));
@@ -79,11 +79,6 @@ public class PathHelper {
         System.out.println("Não foi possível excluir o arquivo: " + filePath);
       }
     }
-
-    // File (or directory) with new name
-    File newFile = new File(
-        file.getParent() + "\\CONCLUÍDO " + windowsFriendlyFormatDateOfNow() + ".txt");
-    file.renameTo(newFile);
   }
 
   public static String windowsFriendlyFormatDateOfNow() {
